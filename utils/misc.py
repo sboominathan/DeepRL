@@ -8,6 +8,7 @@ import numpy as np
 import pickle
 import os
 import timeit
+import matplotlib
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
@@ -17,7 +18,7 @@ def run_episodes(agent):
     plot_interval = 25
 
     ep = 0
-    max_episodes = 100
+    max_episodes = 2000
 
     rewards = []
     steps = []
@@ -96,20 +97,19 @@ def run_test_episodes(agent):
 
     for ep in range(max_episodes):
         reward = agent.episode(deterministic=True, record_actions=True)[0]
-        test_rewards.append(rewards)
+        test_rewards.append(reward)
 
         avg_reward = np.mean(test_rewards)
         avg_rewards.append(avg_reward)
-        avg_test_rewards.append(avg_reward)
 
-        config.logger.info('Avg reward %f(%f)' % (
+    config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
     policy_history_filename = 'policy_history_cartpole_dqn_1.npy'
     action_history_filename = 'action_history_cartpole_dqn_1.npy'
 
-    agent.save_policy_history(policy_history_filename)
-    agent.save_action_history(action_history_filename)
+    agent.save_policy_history("policy_action_data/" + policy_history_filename)
+    agent.save_action_history("policy_action_data/" + action_history_filename)
 
 def run_iterations(agent):
     config = agent.config
