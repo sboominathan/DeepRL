@@ -25,6 +25,8 @@ class DQNAgent:
         self.replay = config.replay_fn()
         self.policy = config.policy_fn()
         self.total_steps = 0
+        self.policy_history = []
+        self.action_history = []
 
     def episode(self, deterministic=False):
         episode_start_time = time.time()
@@ -33,12 +35,14 @@ class DQNAgent:
         steps = 0
         while True:
             value = self.learning_network.predict(np.stack([self.task.normalize_state(state)]), True).flatten()
+            self.policy_history.append(value)
             if deterministic:
                 action = np.argmax(value)
             elif self.total_steps < self.config.exploration_steps:
                 action = np.random.randint(0, len(value))
             else:
                 action = self.policy.sample(value)
+            self.action_history.append(action)
             next_state, reward, done, _ = self.task.step(action)
             total_reward += reward
             reward = self.config.reward_shift_fn(reward)
@@ -83,6 +87,12 @@ class DQNAgent:
     def save(self, file_name):
         with open(file_name, 'wb') as f:
             torch.save(self.learning_network.state_dict(), f)
+
+    def save_policy_history(self, file_name):
+        np.save(file_name, self.policy_history)
+
+    def save_action_history(self, file_name):
+        np.save(file_name, self.action_history)
 
     def close(self):
         pass

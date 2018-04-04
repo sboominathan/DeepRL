@@ -7,21 +7,48 @@
 import numpy as np
 import pickle
 import os
+import timeit
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 
 def run_episodes(agent):
     config = agent.config
     window_size = 100
+    plot_interval = 25
+
     ep = 0
+    max_episodes = 25000
+
     rewards = []
     steps = []
+    avg_train_rewards = []
     avg_test_rewards = []
+
+    episode_times = []
+    avg_episode_times = []
+
+    test_rewards_filename = 'avg_test_rewards_pendulum_ddpg.png'
+    train_rewards_filename = 'avg_train_rewards_cartpole_a2c.png'
+    ep_times_filename = 'ep_times_pendulum_ddpg.png'
+    policy_history_filename = 'policy_history_pendulum_ddpg.npy'
+    action_history_filename = 'action_history_pendulum_ddpg.npy'
+
     agent_type = agent.__class__.__name__
-    while True:
+
+    while ep < max_episodes:
         ep += 1
         reward, step = agent.episode()
+
+        episode_duration = timeit.default_timer() - episode_start
+        episode_times.append(episode_duration)
+        avg_ep_time = np.mean(episode_times[-10:])
+        avg_episode_times.append(avg_ep_time)
+
         rewards.append(reward)
         steps.append(step)
         avg_reward = np.mean(rewards[-window_size:])
+        avg_train_rewards.append(avg_reward)
+
         config.logger.info('episode %d, reward %f, avg reward %f, total steps %d, episode step %d' % (
             ep, reward, avg_reward, agent.total_steps, step))
 
@@ -35,6 +62,11 @@ def run_episodes(agent):
 
         if config.max_steps and agent.total_steps > config.max_steps:
             break
+
+        # Plot average training rewards
+        if ep % plot_interval == 0:
+            plot_rewards(range(ep), avg_train_rewards, train_rewards_filename, ylabel='Avg. Train Rewards/Episode')
+            plot_rewards(range(ep), avg_episode_times, ep_times_filename, ylabel='Time/Episode')
 
         if config.test_interval and ep % config.test_interval == 0:
             config.logger.info('Testing...')
@@ -53,6 +85,8 @@ def run_episodes(agent):
             if avg_reward > config.success_threshold:
                 break
 
+    agent.save_policy_history(policy_history_filename)
+    agent.save_action_history(action_history_filename)
     agent.close()
     return steps, rewards, avg_test_rewards
 
@@ -78,6 +112,32 @@ def run_iterations(agent):
                              'steps': steps}, f)
             agent.save('data/%s-%s-model-%s.bin' % (agent_name, config.tag, agent.task.name))
         iteration += 1
+
+
+def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):
+    matplotlib.rcParams['figure.figsize'] = (13.0, 8.0)
+    matplotlib.rcParams['lines.linewidth'] = 3
+    matplotlib.rcParams['axes.grid'] = True
+    matplotlib.rcParams['grid.linestyle'] = '--'
+    matplotlib.rcParams['grid.color'] = '#aaaaaa'
+    matplotlib.rcParams['xtick.major.size'] = 0
+    matplotlib.rcParams['ytick.major.size'] = 0
+    matplotlib.rcParams['xtick.labelsize'] = 24
+    matplotlib.rcParams['ytick.labelsize'] = 24
+    matplotlib.rcParams['axes.labelsize'] = 24
+    matplotlib.rcParams['axes.titlesize'] = 24
+    matplotlib.rcParams['legend.fontsize'] = 32
+    matplotlib.rcParams['legend.frameon'] = False
+    matplotlib.rcParams['figure.subplot.top'] = 0.85
+    matplotlib.rcParams['axes.facecolor'] = 'white'
+    matplotlib.rcParams['axes.linewidth'] = 0.8
+
+    plt.plot(x, y, color=color)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.ylim(0, 225)
+    plt.savefig(filename)
+    plt.gcf().clear()
 
 def sync_grad(target_network, src_network):
     for param, src_param in zip(target_network.parameters(), src_network.parameters()):
