@@ -27,7 +27,10 @@ def dqn_cart_pole():
     config.test_repetitions = 50
     config.double_q = True
     # config.double_q = False
-    run_episodes(DQNAgent(config))
+    
+    agent = DQNAgent(config)
+    run_episodes(agent)
+    run_test_episodes(agent)
 
 def async_cart_pole():
     config = Config()
@@ -459,7 +462,7 @@ if __name__ == '__main__':
     # logger.setLevel(logging.DEBUG)
     logger.setLevel(logging.INFO)
 
-    # dqn_cart_pole()
+    dqn_cart_pole()
     # categorical_dqn_cart_pole()
     # quantile_regression_dqn_cart_pole()
     # async_cart_pole()

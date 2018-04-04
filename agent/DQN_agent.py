@@ -28,21 +28,24 @@ class DQNAgent:
         self.policy_history = []
         self.action_history = []
 
-    def episode(self, deterministic=False):
+    def episode(self, deterministic=False, record_actions=False):
         episode_start_time = time.time()
         state = self.task.reset()
         total_reward = 0.0
         steps = 0
         while True:
             value = self.learning_network.predict(np.stack([self.task.normalize_state(state)]), True).flatten()
-            self.policy_history.append(value)
             if deterministic:
                 action = np.argmax(value)
             elif self.total_steps < self.config.exploration_steps:
                 action = np.random.randint(0, len(value))
             else:
                 action = self.policy.sample(value)
-            self.action_history.append(action)
+
+            if record_actions:
+                self.policy_history.append(value)
+                self.action_history.append(action)
+
             next_state, reward, done, _ = self.task.step(action)
             total_reward += reward
             reward = self.config.reward_shift_fn(reward)

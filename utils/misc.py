@@ -17,7 +17,7 @@ def run_episodes(agent):
     plot_interval = 25
 
     ep = 0
-    max_episodes = 25000
+    max_episodes = 100
 
     rewards = []
     steps = []
@@ -27,16 +27,14 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    test_rewards_filename = 'avg_test_rewards_pendulum_ddpg.png'
-    train_rewards_filename = 'avg_train_rewards_cartpole_a2c.png'
-    ep_times_filename = 'ep_times_pendulum_ddpg.png'
-    policy_history_filename = 'policy_history_pendulum_ddpg.npy'
-    action_history_filename = 'action_history_pendulum_ddpg.npy'
+    train_rewards_filename = 'avg_train_rewards_cartpole_dqn_1.png'
+    ep_times_filename = 'ep_times_cartpole_dqn_1.png'
 
     agent_type = agent.__class__.__name__
 
     while ep < max_episodes:
         ep += 1
+        episode_start = timeit.default_timer()
         reward, step = agent.episode()
 
         episode_duration = timeit.default_timer() - episode_start
@@ -73,7 +71,7 @@ def run_episodes(agent):
             agent.save('data/%s-%s-model-%s.bin' % (agent_type, config.tag, agent.task.name))
             test_rewards = []
             for _ in range(config.test_repetitions):
-                test_rewards.append(agent.episode(True)[0])
+                test_rewards.append(agent.episode(deterministic=True)[0])
             avg_reward = np.mean(test_rewards)
             avg_test_rewards.append(avg_reward)
             config.logger.info('Avg reward %f(%f)' % (
@@ -85,10 +83,33 @@ def run_episodes(agent):
             if avg_reward > config.success_threshold:
                 break
 
-    agent.save_policy_history(policy_history_filename)
-    agent.save_action_history(action_history_filename)
+    
     agent.close()
     return steps, rewards, avg_test_rewards
+
+def run_test_episodes(agent):
+    config = agent.config
+
+    max_episodes = 100
+    test_rewards = []
+    avg_rewards = []
+
+    for ep in range(max_episodes):
+        reward = agent.episode(deterministic=True, record_actions=True)[0]
+        test_rewards.append(rewards)
+
+        avg_reward = np.mean(test_rewards)
+        avg_rewards.append(avg_reward)
+        avg_test_rewards.append(avg_reward)
+
+        config.logger.info('Avg reward %f(%f)' % (
+                avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
+
+    policy_history_filename = 'policy_history_cartpole_dqn_1.npy'
+    action_history_filename = 'action_history_cartpole_dqn_1.npy'
+
+    agent.save_policy_history(policy_history_filename)
+    agent.save_action_history(action_history_filename)
 
 def run_iterations(agent):
     config = agent.config
@@ -136,7 +157,7 @@ def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.ylim(0, 225)
-    plt.savefig(filename)
+    plt.savefig("plots/"+filename)
     plt.gcf().clear()
 
 def sync_grad(target_network, src_network):
