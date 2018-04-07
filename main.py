@@ -32,7 +32,7 @@ def dqn_cart_pole():
     run_episodes(agent)
     run_test_episodes(agent)
 
-def dqn_noisy_cart_pole():
+def dqn_noisy_cart_pole(num_iterations=10):
     game = 'CartPoleMod-v0'
     config = Config()
     config.task_fn = lambda: ClassicalControl(game, max_steps=200)
@@ -50,9 +50,20 @@ def dqn_noisy_cart_pole():
     # config.double_q = True
     config.double_q = False
 
-    agent = DQNAgent(config)
-    run_episodes(agent)
-    run_test_episodes(agent)
+    action_distributions = []
+    for i in range(num_iterations): 
+        agent = DQNAgent(config)
+        run_episodes(agent)
+        action_distribution = run_test_episodes(agent)
+        action_distributions.append(action_distribution)
+    
+    mean_proportions = {0: 0, 1: 0} 
+    for distribution in action_distributions:
+    	print(distribution)
+        for action in distribution:
+	    mean_proportions[action] += distribution[action]
+    mean_proportions = {action: value/num_iterations for action, value in mean_proportions.items()}
+    print("Average distribution: ", mean_proportions)	
 
 def async_cart_pole():
     config = Config()

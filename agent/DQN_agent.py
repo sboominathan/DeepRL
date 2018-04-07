@@ -97,5 +97,11 @@ class DQNAgent:
     def save_action_history(self, file_name):
         np.save(file_name, self.action_history)
 
+    def clear_action_history(self):
+	self.action_history = []
+    
+    def clear_policy_history(self):
+        self.policy_history = []
+
     def close(self):
         pass

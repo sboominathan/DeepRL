@@ -18,7 +18,7 @@ def run_episodes(agent):
     plot_interval = 25
 
     ep = 0
-    max_episodes = 2000
+    max_episodes = 2000 
 
     rewards = []
     steps = []
@@ -88,7 +88,7 @@ def run_episodes(agent):
     agent.close()
     return steps, rewards, avg_test_rewards
 
-def run_test_episodes(agent):
+def run_test_episodes(agent, num_iterations=1):
     config = agent.config
 
     max_episodes = 100
@@ -110,6 +110,20 @@ def run_test_episodes(agent):
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
+
+    action_distribution = get_action_proportions(np.array(agent.action_history)) 
+    print(action_distribution)
+        
+    agent.clear_action_history()
+    agent.clear_policy_history()    
+    return action_distribution 
+
+def get_action_proportions(action_data):
+   actions, counts = np.unique(action_data, return_counts=True)
+   action_proportions = {}
+   for action, count in zip(actions, counts):
+       action_proportions[action] = count/float(action_data.shape[0])
+   return action_proportions
 
 def run_iterations(agent):
     config = agent.config
