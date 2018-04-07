@@ -28,8 +28,8 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    train_rewards_filename = 'avg_train_rewards_cartpole_dqn_1.png'
-    ep_times_filename = 'ep_times_cartpole_dqn_1.png'
+    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_dqn_1.png'
+    ep_times_filename = 'ep_times_cartpole_noisy_dqn_1.png'
 
     agent_type = agent.__class__.__name__
 
@@ -105,8 +105,8 @@ def run_test_episodes(agent):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
-    policy_history_filename = 'policy_history_cartpole_dqn_1.npy'
-    action_history_filename = 'action_history_cartpole_dqn_1.npy'
+    policy_history_filename = 'policy_history_noisy_cartpole_dqn_1.npy'
+    action_history_filename = 'action_history_noisy_cartpole_dqn_1.npy'
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)

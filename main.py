@@ -25,9 +25,31 @@ def dqn_cart_pole():
     config.logger = Logger('./log', logger)
     config.test_interval = 100
     config.test_repetitions = 50
-    config.double_q = True
-    # config.double_q = False
+    # config.double_q = True
+    config.double_q = False
     
+    agent = DQNAgent(config)
+    run_episodes(agent)
+    run_test_episodes(agent)
+
+def dqn_noisy_cart_pole():
+    game = 'CartPoleMod-v0'
+    config = Config()
+    config.task_fn = lambda: ClassicalControl(game, max_steps=200)
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001)
+    config.network_fn = lambda: FCNet([4, 50, 200, 2])
+    # config.network_fn = lambda: DuelingFCNet([8, 50, 200, 2])
+    config.policy_fn = lambda: GreedyPolicy(epsilon=1.0, final_step=10000, min_epsilon=0.1)
+    config.replay_fn = lambda: Replay(memory_size=10000, batch_size=10)
+    config.discount = 0.99
+    config.target_network_update_freq = 200
+    config.exploration_steps = 1000
+    config.logger = Logger('./log', logger)
+    config.test_interval = 100
+    config.test_repetitions = 50
+    # config.double_q = True
+    config.double_q = False
+
     agent = DQNAgent(config)
     run_episodes(agent)
     run_test_episodes(agent)
@@ -462,7 +484,8 @@ if __name__ == '__main__':
     # logger.setLevel(logging.DEBUG)
     logger.setLevel(logging.INFO)
 
-    dqn_cart_pole()
+    # dqn_cart_pole()
+    dqn_noisy_cart_pole()
     # categorical_dqn_cart_pole()
     # quantile_regression_dqn_cart_pole()
     # async_cart_pole()

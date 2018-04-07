@@ -4,6 +4,7 @@
 # declaration at the top                                              #
 #######################################################################
 import gym
+import gym_cartpolemod
 import sys
 import numpy as np
 from .atari_wrapper import *
