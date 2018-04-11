@@ -129,9 +129,15 @@ def run_iterations(agent):
     config = agent.config
     agent_name = agent.__class__.__name__
     iteration = 0
+    max_iters = 1000
+
     steps = []
     rewards = []
-    while True:
+    avg_rewards = []
+
+    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_a2c_1.png'
+
+    while iteration <= max_iters:
         agent.iteration()
         steps.append(agent.total_steps)
         rewards.append(np.mean(agent.last_episode_rewards))
@@ -146,6 +152,10 @@ def run_iterations(agent):
                 pickle.dump({'rewards': rewards,
                              'steps': steps}, f)
             agent.save('data/%s-%s-model-%s.bin' % (agent_name, config.tag, agent.task.name))
+
+        if iteration % plot_interval == 0:
+            plot_rewards(range(iteration), rewards, train_rewards_filename, ylabel='Avg. Train Rewards/Episode')
+
         iteration += 1
 
 
@@ -156,10 +166,10 @@ def run_test_iterations(agent, max_iters=100):
     avg_rewards = []
     
     for i in range(max_iters):
-	total_reward,  _ = agent.evaluate(record_actions=True)
-	rewards.append(total_reward)
-	avg_reward = np.mean(rewards)
-	avg_rewards.append(avg_reward)
+    	total_reward,  _ = agent.evaluate(record_actions=True)
+    	rewards.append(total_reward)
+    	avg_reward = np.mean(rewards)
+    	avg_rewards.append(avg_reward)
 
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(rewards) / np.sqrt(max_iters)))
@@ -200,6 +210,15 @@ def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):
     plt.ylim(0, 225)
     plt.savefig("plots/"+filename)
     plt.gcf().clear()
+
+def calculate_mean_action_dist(action_dists):
+    mean_proportions = {0: 0, 1: 0} 
+    for distribution in action_dists:
+        print(distribution)
+        for action in distribution:
+        mean_proportions[action] += distribution[action]
+    mean_proportions = {action: value/num_iterations for action, value in mean_proportions.items()}
+    return mean_proportions
 
 def sync_grad(target_network, src_network):
     for param, src_param in zip(target_network.parameters(), src_network.parameters()):

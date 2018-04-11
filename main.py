@@ -56,13 +56,15 @@ def dqn_noisy_cart_pole(num_iterations=15):
         action_distribution = run_test_episodes(agent)
         action_distributions.append(action_distribution)
     
-    mean_proportions = {0: 0, 1: 0} 
-    for distribution in action_distributions:
-    	print(distribution)
-        for action in distribution:
-	    mean_proportions[action] += distribution[action]
-    mean_proportions = {action: value/num_iterations for action, value in mean_proportions.items()}
-    print("Average distribution: ", mean_proportions)	
+    mean_proportions = calculate_mean_action_dist(action_distributions)
+    print("Average distribution: ", mean_proportions)   
+
+    # for distribution in action_distributions:
+    # 	print(distribution)
+    #     for action in distribution:
+	   #  mean_proportions[action] += distribution[action]
+    # mean_proportions = {action: value/num_iterations for action, value in mean_proportions.items()}
+    
 
 def async_cart_pole():
     config = Config()
@@ -147,10 +149,13 @@ def a2c_noisy_cart_pole(num_iterations=15):
     
     action_distributions = []
     for i in range(num_iterations):
-	agent = A2CAgent(config)
-    	run_iterations(agent)
-	action_distribution = run_test_iterations(agent)
-	action_distributions.append(action_distribution)
+	   agent = A2CAgent(config)
+       run_iterations(agent)
+	   action_distribution = run_test_iterations(agent)
+	   action_distributions.append(action_distribution)
+
+    mean_proportions = calculate_mean_action_dist(action_distributions)
+    print("Average distribution: ", mean_proportions)
 
 def dqn_pixel_atari(name):
     config = Config()

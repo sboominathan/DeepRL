@@ -25,8 +25,8 @@ class A2CAgent:
         self.states = self.task.reset()
         self.episode_rewards = np.zeros(config.num_workers)
         self.last_episode_rewards = np.zeros(config.num_workers)
-	self.policy_history = []
-	self.action_history = []
+    	self.policy_history = []
+    	self.action_history = []
 
     def close(self):
         self.task.close()
@@ -43,8 +43,8 @@ class A2CAgent:
             prob, _, _ = self.network.predict(np.stack([state]))
             action = self.policy.sample(prob.data.cpu().numpy().flatten(), True)
             if record_actions:
-		self.action_history.append(action)
-	    state, reward, done, _ = self.evaluator.step(action)
+        		self.action_history.append(action)
+        	    state, reward, done, _ = self.evaluator.step(action)
             total_rewards += reward
             steps += 1
             if done:
@@ -111,7 +111,7 @@ class A2CAgent:
         self.total_steps += steps
 
     def save_action_history(self, filename):
-	np.save(filename, self.action_history)
+	   np.save(filename, self.action_history)
    
     def save_policy_history(self, filename):
-	np.save(filename, self.policy_history)
+	   np.save(filename, self.policy_history)
