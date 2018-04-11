@@ -1,4 +1,4 @@
-#######################################################################
+######################################################################
 # Copyright (C) 2017 Shangtong Zhang(zhangshangtong.cpp@gmail.com)    #
 # Permission given to modify the code as long as you keep this        #
 # declaration at the top                                              #
@@ -35,7 +35,7 @@ class Replay:
         self.states[self.pos][:] = state
         self.actions[self.pos] = action
         self.rewards[self.pos] = reward
-        self.next_states[self.pos][:] = next_state
+	self.next_states[self.pos][:] = next_state
         self.terminals[self.pos] = done
 
         self.pos += 1

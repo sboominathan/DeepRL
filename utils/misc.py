@@ -18,7 +18,7 @@ def run_episodes(agent):
     plot_interval = 25
 
     ep = 0
-    max_episodes = 2000 
+    max_episodes = 600 
 
     rewards = []
     steps = []
@@ -28,8 +28,8 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_dqn_1.png'
-    ep_times_filename = 'ep_times_cartpole_noisy_dqn_1.png'
+    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_dqn_9.png'
+    ep_times_filename = 'ep_times_cartpole_noisy_dqn_9.png'
 
     agent_type = agent.__class__.__name__
 
@@ -105,8 +105,8 @@ def run_test_episodes(agent, num_iterations=1):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
-    policy_history_filename = 'policy_history_noisy_cartpole_dqn_1.npy'
-    action_history_filename = 'action_history_noisy_cartpole_dqn_1.npy'
+    policy_history_filename = 'policy_history_noisy_cartpole_dqn_9.npy'
+    action_history_filename = 'action_history_noisy_cartpole_dqn_9.npy'
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
@@ -147,6 +147,33 @@ def run_iterations(agent):
                              'steps': steps}, f)
             agent.save('data/%s-%s-model-%s.bin' % (agent_name, config.tag, agent.task.name))
         iteration += 1
+
+
+def run_test_iterations(agent, max_iters=100):
+    config = agent.config
+    steps = []
+    rewards = []
+    avg_rewards = []
+    
+    for i in range(max_iters):
+	total_reward,  _ = agent.evaluate(record_actions=True)
+	rewards.append(total_reward)
+	avg_reward = np.mean(rewards)
+	avg_rewards.append(avg_reward)
+
+    config.logger.info('Avg reward %f(%f)' % (
+                avg_reward, np.std(rewards) / np.sqrt(max_iters)))
+
+    policy_history_filename = 'policy_history_noisy_cartpole_a2c_1.npy'
+    action_history_filename = 'action_history_noisy_cartpole_a2c_1.npy'
+
+    agent.save_policy_history("policy_action_data/" + policy_history_filename)
+    agent.save_action_history("policy_action_data/" + action_history_filename)
+
+    action_distribution = get_action_proportions(np.array(agent.action_history))
+    print(action_distribution)
+
+    return action_distribution
 
 
 def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):

@@ -1,5 +1,3 @@
-#######################################################################
-# Copyright (C) 2017 Shangtong Zhang(zhangshangtong.cpp@gmail.com)    #
 # Permission given to modify the code as long as you keep this        #
 # declaration at the top                                              #
 #######################################################################
@@ -15,8 +13,8 @@ def dqn_cart_pole():
     config = Config()
     config.task_fn = lambda: ClassicalControl(game, max_steps=200)
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001)
-    config.network_fn = lambda: FCNet([4, 50, 200, 2])
-    # config.network_fn = lambda: DuelingFCNet([8, 50, 200, 2])
+    # config.network_fn = lambda: FCNet([4, 50, 200, 2])
+    config.network_fn = lambda: DuelingFCNet([8, 50, 200, 2])
     config.policy_fn = lambda: GreedyPolicy(epsilon=1.0, final_step=10000, min_epsilon=0.1)
     config.replay_fn = lambda: Replay(memory_size=10000, batch_size=10)
     config.discount = 0.99
@@ -32,13 +30,13 @@ def dqn_cart_pole():
     run_episodes(agent)
     run_test_episodes(agent)
 
-def dqn_noisy_cart_pole(num_iterations=10):
-    game = 'CartPoleMod-v0'
+def dqn_noisy_cart_pole(num_iterations=15):
+    game = 'CartPoleMod-v5'
     config = Config()
     config.task_fn = lambda: ClassicalControl(game, max_steps=200)
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001)
-    config.network_fn = lambda: FCNet([4, 50, 200, 2])
-    # config.network_fn = lambda: DuelingFCNet([8, 50, 200, 2])
+    # config.network_fn = lambda: FCNet([4, 50, 200, 2])
+    config.network_fn = lambda: DuelingFCNet([4, 50, 200, 2])
     config.policy_fn = lambda: GreedyPolicy(epsilon=1.0, final_step=10000, min_epsilon=0.1)
     config.replay_fn = lambda: Replay(memory_size=10000, batch_size=10)
     config.discount = 0.99
@@ -52,7 +50,8 @@ def dqn_noisy_cart_pole(num_iterations=10):
 
     action_distributions = []
     for i in range(num_iterations): 
-        agent = DQNAgent(config)
+        print("Beginning iteration #: ", i)
+	agent = DQNAgent(config)
         run_episodes(agent)
         action_distribution = run_test_episodes(agent)
         action_distributions.append(action_distribution)
@@ -127,6 +126,31 @@ def a2c_cart_pole():
     config.entropy_weight = 0.01
     config.rollout_length = 20
     run_iterations(A2CAgent(config))
+
+def a2c_noisy_cart_pole(num_iterations=15):
+    config = Config()
+    name = 'CartPoleMod-v1'
+    task_fn = lambda: ClassicalControl(name, max_steps=200)
+    task = task_fn()
+    config.num_workers = 5
+    config.task_fn = lambda: ParallelizedTask(task_fn, config.num_workers)
+    config.optimizer_fn = lambda params: torch.optim.Adam(params, 0.001)
+    config.network_fn = lambda: ActorCriticFCNet(task.state_dim, task.action_dim)
+    config.policy_fn = SamplePolicy
+    config.discount = 0.99
+    config.test_interval = 200
+    config.test_repetitions = 10
+    config.logger = Logger('./log', logger)
+    config.gae_tau = 1.0
+    config.entropy_weight = 0.01
+    config.rollout_length = 20
+    
+    action_distributions = []
+    for i in range(num_iterations):
+	agent = A2CAgent(config)
+    	run_iterations(agent)
+	action_distribution = run_test_iterations(agent)
+	action_distributions.append(action_distribution)
 
 def dqn_pixel_atari(name):
     config = Config()
