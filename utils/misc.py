@@ -18,7 +18,7 @@ def run_episodes(agent):
     plot_interval = 25
 
     ep = 0
-    max_episodes = 600 
+    max_episodes = 100 
 
     rewards = []
     steps = []
@@ -28,8 +28,8 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_dqn_9.png'
-    ep_times_filename = 'ep_times_cartpole_noisy_dqn_9.png'
+    train_rewards_filename = 'avg_train_rewards_breakout_1.png'
+    ep_times_filename = 'ep_times_breakout_1.png'
 
     agent_type = agent.__class__.__name__
 
@@ -88,7 +88,7 @@ def run_episodes(agent):
     agent.close()
     return steps, rewards, avg_test_rewards
 
-def run_test_episodes(agent, num_iterations=1):
+def run_test_episodes(agent, iter_num):
     config = agent.config
 
     max_episodes = 100
@@ -105,8 +105,8 @@ def run_test_episodes(agent, num_iterations=1):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
-    policy_history_filename = 'policy_history_noisy_cartpole_dqn_9.npy'
-    action_history_filename = 'action_history_noisy_cartpole_dqn_9.npy'
+    policy_history_filename = 'policy_history_breakout_1_trial_%s.npy' % iter_num
+    action_history_filename = 'action_history_breakout_1_trial_%s.npy' % iter_num
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)

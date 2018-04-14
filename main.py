@@ -51,7 +51,7 @@ def dqn_noisy_cart_pole(num_iterations=15):
     action_distributions = []
     for i in range(num_iterations): 
         print("Beginning iteration #: ", i)
-	agent = DQNAgent(config)
+	    agent = DQNAgent(config)
         run_episodes(agent)
         action_distribution = run_test_episodes(agent)
         action_distributions.append(action_distribution)
@@ -178,7 +178,19 @@ def dqn_pixel_atari(name):
     config.test_repetitions = 1
     # config.double_q = True
     config.double_q = False
-    run_episodes(DQNAgent(config))
+
+    num_iterations = 3
+    agent = DQNAgent(config)
+    run_episodes(agent)
+    action_distributions = []
+
+    for i in range(num_iterations):
+        run_episodes(agent)
+        action_distribution = run_test_episodes(agent, i)
+        action_distributions.append(action_distribution)
+    
+    mean_proportions = calculate_mean_action_dist(action_distributions)
+    print("Average distribution: ", mean_proportions)   
 
 def dqn_ram_atari(name):
     config = Config()

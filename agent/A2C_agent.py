@@ -44,7 +44,7 @@ class A2CAgent:
             action = self.policy.sample(prob.data.cpu().numpy().flatten(), True)
             if record_actions:
         		self.action_history.append(action)
-        	    state, reward, done, _ = self.evaluator.step(action)
+        	state, reward, done, _ = self.evaluator.step(action)
             total_rewards += reward
             steps += 1
             if done:
