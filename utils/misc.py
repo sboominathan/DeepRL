@@ -107,9 +107,11 @@ def run_test_episodes(agent, iter_num):
 
     policy_history_filename = 'policy_history_breakout_1_trial_%s.npy' % iter_num
     action_history_filename = 'action_history_breakout_1_trial_%s.npy' % iter_num
+    state_policy_dict_filename = 'state_policy_dict_breakout_1_trial_%s.npy' % iter_num
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
+    agent.save_state_policy_dict("policy_action_data/" + state_policy_dict_filename)
 
     action_distribution = get_action_proportions(np.array(agent.action_history)) 
     print(action_distribution)

@@ -27,6 +27,7 @@ class DQNAgent:
         self.total_steps = 0
         self.policy_history = []
         self.action_history = []
+        self.state_policy_dict = {}
 
     def episode(self, deterministic=False, record_actions=False):
         episode_start_time = time.time()
@@ -34,6 +35,7 @@ class DQNAgent:
         total_reward = 0.0
         steps = 0
         while True:
+            print(state)
             value = self.learning_network.predict(np.stack([self.task.normalize_state(state)]), True).flatten()
             if deterministic:
                 action = np.argmax(value)
@@ -45,6 +47,7 @@ class DQNAgent:
             if record_actions:
                 self.policy_history.append(value)
                 self.action_history.append(action)
+                self.update_state_policy_dict(state, policy)
 
             next_state, reward, done, _ = self.task.step(action)
             next_state = next_state.reshape((next_state.shape[0],))
@@ -98,8 +101,23 @@ class DQNAgent:
     def save_action_history(self, file_name):
         np.save(file_name, self.action_history)
 
+    def save_state_policy_dict(self, file_name):
+        avg_state_policy_dict = {}
+        for state, policy_list in self.state_policy_dict:
+            avg_policy = np.mean(np.array(policy_list), axis=0)
+            avg_state_policy_dict[state] = avg_policy
+
+        np.save(file_name, avg_state_policy_dict)
+
+    def update_state_policy_dict(self, state, policy):
+        if state not in self.state_policy_dict:
+            self.state_policy_dict[state] = [policy]
+        else:
+            self.state_policy_dict[state].append(policy)
+
+
     def clear_action_history(self):
-	self.action_history = []
+	   self.action_history = []
     
     def clear_policy_history(self):
         self.policy_history = []

@@ -19,7 +19,16 @@ action_distributions = [
 {0: 0.12074365969485702, 1: 0.48438920885116704, 2: 0.185712842275437, 3: 0.20915428917853895},
 {0: 0.12630747977106768, 1: 0.5365107558713242, 2: 0.15591079534241167, 3: 0.18127096901519638},
 
+]
 
+avg_distributions = [
+
+[ 0.181507838047214,  0.22577147949603169,  0.31330311713103026,  0.27941756532572415],
+[ 0.2280616172667789,  0.09853159955431767,  0.35372771755544785,  0.31967906562345555],
+[ 0.11337741174003793,  0.5049072551016909,  0.17797662194869993,  0.20373871120957124],
+[ 0.1857111923466722,  0.2665313160128871,  0.23649335403492946,  0.31126413760551125],
+[ 0.5115071130993397,  0.08517125025821752,  0.08809229082034653,  0.3152293458220962],
+[ 0.3539064685254491,  0.05506890895378577,  0.2457483784636311,  0.34527624405713386]
 
 ]
 
@@ -32,6 +41,16 @@ def get_action_variance(action_distributions):
 		variances[action] = np.var(np.array(action_values))
 	return variances
 
+def kl_divergences(action_distributions):
+	num_dists = len(action_distributions)
+	divergence_table = np.zeros((num_dists, num_dists))
+
+	for i in range(num_dists):
+		for j in range(num_dists):
+			divergence_table[i][j] = kl_divergence(action_distributions[i], action_distributions[j]) + kl_divergence(action_distributions[j], action_distributions[i])
+
+	return divergence_table
+
 
 def kl_divergence(p, q):
     p = np.asarray(p, dtype=np.float)
@@ -40,6 +59,4 @@ def kl_divergence(p, q):
     return np.sum(np.where(p != 0, p * np.log(p / q), 0))
 
 
-dist_1 = [0.1857111923466722, 0.2665313160128871, 0.23649335403492946, 0.31126413760551125]
-dist_2 = [0.181507838047214, 0.22577147949603169, 0.31330311713103026, 0.27941756532572415]
-print(kl_divergence(dist_1, dist_2) + kl_divergence(dist_2, dist_1))
+print(kl_divergences(avg_distributions))
