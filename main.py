@@ -283,7 +283,15 @@ def a2c_pixel_atari(name):
     config.iteration_log_interval = 100
     config.gradient_clip = 0.5
     config.logger = Logger('./log', logger, skip=True)
+
+    num_iterations = 15
     run_iterations(A2CAgent(config))
+    for i in range(num_iterations):
+        action_distribution = run_test_iterations(agent, i)
+        action_distributions.append(action_distribution)
+    
+    mean_proportions = calculate_mean_action_dist(action_distributions)
+    print("Average distribution: ", mean_proportions)   
 
 def a3c_continuous():
     config = Config()
@@ -537,7 +545,7 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
 
     # dqn_cart_pole()
-    dqn_noisy_cart_pole()
+    # dqn_noisy_cart_pole()
     # categorical_dqn_cart_pole()
     # quantile_regression_dqn_cart_pole()
     # async_cart_pole()
@@ -560,6 +568,7 @@ if __name__ == '__main__':
     # dqn_pixel_atari('BreakoutNoFrameskip-v4')
     # async_pixel_atari('BreakoutNoFrameskip-v4')
     # a3c_pixel_atari('BreakoutNoFrameskip-v4')
+    a2c_pixel_atari('BreakoutNoFrameskip-v4')
 
     # dqn_ram_atari('Pong-ramNoFrameskip-v4')
 

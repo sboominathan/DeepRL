@@ -161,7 +161,7 @@ def run_iterations(agent):
         iteration += 1
 
 
-def run_test_iterations(agent, max_iters=100):
+def run_test_iterations(agent, iter_num, max_iters=100):
     config = agent.config
     steps = []
     rewards = []
@@ -176,15 +176,16 @@ def run_test_iterations(agent, max_iters=100):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(rewards) / np.sqrt(max_iters)))
 
-    policy_history_filename = 'policy_history_noisy_cartpole_a2c_1.npy'
-    action_history_filename = 'action_history_noisy_cartpole_a2c_1.npy'
+    # policy_history_filename = 'policy_history_breakout_1_a2c_trial_%s.npy' % iter_num
+    action_history_filename = 'action_history_breakout_1_a2c_trial_%s.npy' % iter_num
 
-    agent.save_policy_history("policy_action_data/" + policy_history_filename)
+    # agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
 
     action_distribution = get_action_proportions(np.array(agent.action_history))
     print(action_distribution)
 
+    agent.clear_action_history()
     return action_distribution
 
 
@@ -214,12 +215,12 @@ def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):
     plt.gcf().clear()
 
 def calculate_mean_action_dist(action_dists):
-    mean_proportions = {0: 0, 1: 0} 
+    mean_proportions = {0: 0, 1: 0, 2: 0, 3: 0} 
     for distribution in action_dists:
         print(distribution)
         for action in distribution:
         mean_proportions[action] += distribution[action]
-    mean_proportions = {action: value/num_iterations for action, value in mean_proportions.items()}
+    mean_proportions = {action: value/len(action_dists) for action, value in mean_proportions.items()}
     return mean_proportions
 
 def sync_grad(target_network, src_network):

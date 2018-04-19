@@ -115,3 +115,10 @@ class A2CAgent:
    
     def save_policy_history(self, filename):
 	   np.save(filename, self.policy_history)
+
+    def clear_action_history(self):
+       self.action_history = []
+    
+    def clear_policy_history(self):
+        self.policy_history = []
+
