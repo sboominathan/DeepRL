@@ -28,8 +28,8 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    train_rewards_filename = 'avg_train_rewards_breakout_1.png'
-    ep_times_filename = 'ep_times_breakout_1.png'
+    train_rewards_filename = 'avg_train_rewards_breakout_10.png'
+    ep_times_filename = 'ep_times_breakout_10.png'
 
     agent_type = agent.__class__.__name__
 
@@ -105,9 +105,9 @@ def run_test_episodes(agent, iter_num):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
-    policy_history_filename = 'policy_history_breakout_1_trial_%s.npy' % iter_num
-    action_history_filename = 'action_history_breakout_1_trial_%s.npy' % iter_num
-    state_policy_dict_filename = 'state_policy_dict_breakout_1_trial_%s.npy' % iter_num
+    policy_history_filename = 'policy_history_breakout_10_trial_%s.npy' % iter_num
+    action_history_filename = 'action_history_breakout_10_trial_%s.npy' % iter_num
+    state_policy_dict_filename = 'state_policy_dict_breakout_10_trial_%s.npy' % iter_num
 
     agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
@@ -131,21 +131,22 @@ def run_iterations(agent):
     config = agent.config
     agent_name = agent.__class__.__name__
     iteration = 0
-    max_iters = 1000
+    max_iters = 75000
 
     steps = []
     rewards = []
     avg_rewards = []
+    plot_interval = 25
 
-    train_rewards_filename = 'avg_train_rewards_cartpole_noisy_a2c_1.png'
+    train_rewards_filename = 'avg_train_rewards_breakout_a2c_9.png'
 
     while iteration <= max_iters:
         agent.iteration()
         steps.append(agent.total_steps)
         rewards.append(np.mean(agent.last_episode_rewards))
         if iteration % config.iteration_log_interval == 0:
-            config.logger.info('total steps %d, mean/max/min reward %f/%f/%f' % (
-                agent.total_steps, np.mean(agent.last_episode_rewards),
+            config.logger.info('iteration %d, total steps %d, mean/max/min reward %f/%f/%f' % (
+                iteration, agent.total_steps, np.mean(agent.last_episode_rewards),
                 np.max(agent.last_episode_rewards),
                 np.min(agent.last_episode_rewards)
             ))
@@ -156,19 +157,20 @@ def run_iterations(agent):
             agent.save('data/%s-%s-model-%s.bin' % (agent_name, config.tag, agent.task.name))
 
         if iteration % plot_interval == 0:
-            plot_rewards(range(iteration), rewards, train_rewards_filename, ylabel='Avg. Train Rewards/Episode')
+            plot_rewards(range(iteration+1), rewards, train_rewards_filename, ylabel='Avg. Train Rewards/Episode')
 
         iteration += 1
 
 
-def run_test_iterations(agent, iter_num, max_iters=100):
+def run_test_iterations(agent, iter_num, max_iters=50):
     config = agent.config
     steps = []
     rewards = []
     avg_rewards = []
-    
+    print("testing") 
     for i in range(max_iters):
-    	total_reward,  _ = agent.evaluate(record_actions=True)
+        print(i)	
+	total_reward,  _ = agent.evaluate(record_actions=True)
     	rewards.append(total_reward)
     	avg_reward = np.mean(rewards)
     	avg_rewards.append(avg_reward)
@@ -177,7 +179,7 @@ def run_test_iterations(agent, iter_num, max_iters=100):
                 avg_reward, np.std(rewards) / np.sqrt(max_iters)))
 
     # policy_history_filename = 'policy_history_breakout_1_a2c_trial_%s.npy' % iter_num
-    action_history_filename = 'action_history_breakout_1_a2c_trial_%s.npy' % iter_num
+    action_history_filename = 'action_history_breakout_9_a2c_trial_%s.npy' % iter_num
 
     # agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
@@ -210,7 +212,7 @@ def plot_rewards(x, y, filename, ylabel, xlabel='Episode #', color='red'):
     plt.plot(x, y, color=color)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.ylim(0, 225)
+    plt.ylim(0, 80)
     plt.savefig("plots/"+filename)
     plt.gcf().clear()
 
@@ -219,7 +221,7 @@ def calculate_mean_action_dist(action_dists):
     for distribution in action_dists:
         print(distribution)
         for action in distribution:
-        mean_proportions[action] += distribution[action]
+            mean_proportions[action] += distribution[action]
     mean_proportions = {action: value/len(action_dists) for action, value in mean_proportions.items()}
     return mean_proportions
 

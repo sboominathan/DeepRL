@@ -50,8 +50,7 @@ class DQNAgent:
                 self.update_state_policy_dict(state, policy)
 
             next_state, reward, done, _ = self.task.step(action)
-            next_state = next_state.reshape((next_state.shape[0],))
-	        total_reward += reward
+	    total_reward += reward
             reward = self.config.reward_shift_fn(reward)
             if not deterministic:
                 self.replay.feed([state, action, reward, next_state, int(done)])

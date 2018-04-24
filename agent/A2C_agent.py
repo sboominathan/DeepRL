@@ -40,11 +40,11 @@ class A2CAgent:
         total_rewards = 0
         steps = 0
         while True:
-            prob, _, _ = self.network.predict(np.stack([state]))
+	    prob, _, _ = self.network.predict(np.stack([state]))
             action = self.policy.sample(prob.data.cpu().numpy().flatten(), True)
             if record_actions:
-        		self.action_history.append(action)
-        	state, reward, done, _ = self.evaluator.step(action)
+        	self.action_history.append(action)
+            state, reward, done, _ = self.evaluator.step(action)
             total_rewards += reward
             steps += 1
             if done:

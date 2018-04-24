@@ -51,7 +51,7 @@ def dqn_noisy_cart_pole(num_iterations=15):
     action_distributions = []
     for i in range(num_iterations): 
         print("Beginning iteration #: ", i)
-	    agent = DQNAgent(config)
+	agent = DQNAgent(config)
         run_episodes(agent)
         action_distribution = run_test_episodes(agent)
         action_distributions.append(action_distribution)
@@ -149,10 +149,10 @@ def a2c_noisy_cart_pole(num_iterations=15):
     
     action_distributions = []
     for i in range(num_iterations):
-	   agent = A2CAgent(config)
+       agent = A2CAgent(config)
        run_iterations(agent)
-	   action_distribution = run_test_iterations(agent)
-	   action_distributions.append(action_distribution)
+       action_distribution = run_test_iterations(agent)
+       action_distributions.append(action_distribution)
 
     mean_proportions = calculate_mean_action_dist(action_distributions)
     print("Average distribution: ", mean_proportions)
@@ -271,7 +271,7 @@ def a2c_pixel_atari(name):
     # config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=0.0001)
     # config.network_fn = lambda: OpenAIActorCriticConvNet(
     config.network_fn = lambda: NatureActorCriticConvNet(
-        config.history_length, task.task.env.action_space.n, gpu=3)
+        config.history_length, task.task.env.action_space.n, gpu=0)
     config.reward_shift_fn = lambda r: np.sign(r)
     config.policy_fn = SamplePolicy
     config.discount = 0.99
@@ -285,7 +285,9 @@ def a2c_pixel_atari(name):
     config.logger = Logger('./log', logger, skip=True)
 
     num_iterations = 15
-    run_iterations(A2CAgent(config))
+    agent = A2CAgent(config)
+    run_iterations(agent)
+    action_distributions = [] 
     for i in range(num_iterations):
         action_distribution = run_test_iterations(agent, i)
         action_distributions.append(action_distribution)
