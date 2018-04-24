@@ -28,8 +28,8 @@ def run_episodes(agent):
     episode_times = []
     avg_episode_times = []
 
-    train_rewards_filename = 'avg_train_rewards_breakout_10.png'
-    ep_times_filename = 'ep_times_breakout_10.png'
+    train_rewards_filename = 'avg_train_rewards_breakout_ddpg_1.png'
+    ep_times_filename = 'ep_times_breakout_ddpg_1.png'
 
     agent_type = agent.__class__.__name__
 
@@ -105,19 +105,19 @@ def run_test_episodes(agent, iter_num):
     config.logger.info('Avg reward %f(%f)' % (
                 avg_reward, np.std(test_rewards) / np.sqrt(max_episodes)))
 
-    policy_history_filename = 'policy_history_breakout_10_trial_%s.npy' % iter_num
-    action_history_filename = 'action_history_breakout_10_trial_%s.npy' % iter_num
-    state_policy_dict_filename = 'state_policy_dict_breakout_10_trial_%s.npy' % iter_num
+    # policy_history_filename = 'policy_history_breakout_1_trial_%s.npy' % iter_num
+    action_history_filename = 'action_history_breakout_ddpg_1_trial_%s.npy' % iter_num
+    # state_policy_dict_filename = 'state_policy_dict_breakout_1_trial_%s.npy' % iter_num
 
-    agent.save_policy_history("policy_action_data/" + policy_history_filename)
+    # agent.save_policy_history("policy_action_data/" + policy_history_filename)
     agent.save_action_history("policy_action_data/" + action_history_filename)
-    agent.save_state_policy_dict("policy_action_data/" + state_policy_dict_filename)
+    # agent.save_state_policy_dict("policy_action_data/" + state_policy_dict_filename)
 
     action_distribution = get_action_proportions(np.array(agent.action_history)) 
     print(action_distribution)
         
     agent.clear_action_history()
-    agent.clear_policy_history()    
+    # agent.clear_policy_history()    
     return action_distribution 
 
 def get_action_proportions(action_data):
