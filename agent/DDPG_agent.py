@@ -30,6 +30,9 @@ class DDPGAgent:
         self.state_normalizer = Normalizer(self.task.state_dim)
         self.reward_normalizer = Normalizer(1)
 
+        self.action_history = []
+        self.policy_history = []
+
     def soft_update(self, target, src):
         for target_param, param in zip(target.parameters(), src.parameters()):
             target_param.data.copy_(target_param.data * (1.0 - self.config.target_network_mix) +
@@ -42,7 +45,7 @@ class DDPGAgent:
     def close(self):
         pass
 
-    def episode(self, deterministic=False, video_recorder=None):
+    def episode(self, deterministic=False, video_recorder=None, record_actions=False):
         self.random_process.reset_states()
         state = self.task.reset()
         state = self.state_normalizer(state)
@@ -70,6 +73,9 @@ class DDPGAgent:
             if not deterministic:
                 self.replay.feed([state, action, reward, next_state, int(done)])
                 self.total_steps += 1
+
+            if record_actions:
+                self.action_history.append(action)
 
             steps += 1
             state = next_state
@@ -108,3 +114,17 @@ class DDPGAgent:
                 self.soft_update(self.target_network, self.worker_network)
 
         return total_reward, steps
+
+
+    def save_policy_history(self, file_name):
+        np.save(file_name, self.policy_history)
+
+    def save_action_history(self, file_name):
+        np.save(file_name, self.action_history)
+
+    def clear_action_history(self):
+       self.action_history = []
+    
+    def clear_policy_history(self):
+        self.policy_history = []
+

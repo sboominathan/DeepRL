@@ -419,7 +419,19 @@ def ddpg_continuous():
     config.gradient_clip = 40
     config.render_episode_freq = 0
     config.logger = Logger('./log', logger)
-    run_episodes(DDPGAgent(config))
+
+    agent = DDPGAgent(config)
+    run_episodes(agent)
+
+    num_iterations = 15
+
+    for i in range(num_iterations):
+        action_distribution = run_test_episodes(agent, i)
+        action_distributions.append(action_distribution)
+    
+    mean_proportions = calculate_mean_action_dist(action_distributions)
+    print("Average distribution: ", mean_proportions)   
+
 
 def categorical_dqn_cart_pole():
     config = Config()
