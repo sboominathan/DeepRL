@@ -131,7 +131,7 @@ def run_iterations(agent):
     config = agent.config
     agent_name = agent.__class__.__name__
     iteration = 0
-    max_iters = 75000
+    max_iters = 1000
 
     steps = []
     rewards = []

@@ -284,14 +284,20 @@ def a2c_pixel_atari(name):
     config.gradient_clip = 0.5
     config.logger = Logger('./log', logger, skip=True)
 
-    num_iterations = 15
+    # num_iterations = 15
+    num_stages = 5
     agent = A2CAgent(config)
-    run_iterations(agent)
-    action_distributions = [] 
-    for i in range(num_iterations):
+    
+    for i in range(num_stages):
+        action_distributions = [] 
+        run_iterations(agent)
         action_distribution = run_test_iterations(agent, i)
         action_distributions.append(action_distribution)
     
+    for i, distribution in action_distributions:
+        num_steps = 15000*(i+1)
+        print("%d Steps: " % num_steps, distribution)
+        
     mean_proportions = calculate_mean_action_dist(action_distributions)
     print("Average distribution: ", mean_proportions)   
 
